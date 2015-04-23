@@ -73,17 +73,18 @@ class Personalize_Login_Plugin {
 	 * Redirect the user to the custom login page instead of wp-login.php.
 	 */
 	public function redirect_to_custom_login() {
+		$redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : null;
+
 		if ( $_SERVER['REQUEST_METHOD'] == 'GET' ) {
 			if ( is_user_logged_in() ) {
-				// Already logged in users should go straight to the account page
-				wp_redirect( home_url( 'member-account' ) );
+				$this->redirect_logged_in_user( $redirect_to );
 				exit;
 			}
 
 			// The rest are redirected to the login page
 			$login_url = home_url( 'member-login' );
-			if ( ! empty( $_REQUEST['redirect_to'] ) ) {
-				$login_url = add_query_arg( 'redirect_to', $_REQUEST['redirect_to'], $login_url );
+			if ( ! empty( $redirect_to ) ) {
+				$login_url = add_query_arg( 'redirect_to', $redirect_to, $login_url );
 			}
 
 			wp_redirect( $login_url );
@@ -237,6 +238,25 @@ class Personalize_Login_Plugin {
 	//
 	// HELPER FUNCTIONS
 	//
+
+	/**
+	 * Redirects the user to the correct page depending on whether he / she
+	 * is an admin or not.
+	 *
+	 * @param string $redirect_to   An optional redirect_to URL for admin users
+	 */
+	private function redirect_logged_in_user( $redirect_to = null ) {
+		$user = wp_get_current_user();
+		if ( user_can( $user, 'manage_options' ) ) {
+			if ( $redirect_to ) {
+				wp_safe_redirect( $redirect_to );
+			} else {
+				wp_redirect( admin_url() );
+			}
+		} else {
+			wp_redirect( home_url( 'member-account' ) );
+		}
+	}
 
 	/**
 	 * Finds and returns a matching error message for the given error code.
