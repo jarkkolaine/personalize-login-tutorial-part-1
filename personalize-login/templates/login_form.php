@@ -13,7 +13,7 @@
 	<?php endif; ?>
 
 	<!-- Show logged out message if user just logged out -->
-	<?php if ( isset( $attributes['logged_out'] ) && $attributes['logged_out'] ) : ?>
+	<?php if ( $attributes['logged_out'] ) : ?>
 		<p class="login-info">
 			<?php _e( 'You have signed out. Would you like to sign in again?', 'personalize-login' ); ?>
 		</p>
